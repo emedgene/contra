@@ -29,7 +29,7 @@ from optparse import OptionParser
 import sys
 import subprocess
 import shlex
-import shutil
+from shutil import rmtree
 from multiprocessing import Process, Manager
 
 from scripts.assign_bin_number_v2 import assignBin
@@ -254,6 +254,8 @@ class Params:
         print "minExon        :", self.MINEXON
         print "largeDeletion    :", self.LARGE
         print "removeDups    :", self.REMOVEDUPS
+
+
 def checkOutputFolder(outF):
     print "Creating Output Folder :",
  
@@ -375,8 +377,6 @@ def convertBam(params, folder, targetList, genomeFile):
     print "Targeted regions pre-processing: Done"        
 
 def analysisPerBin(params, num_bin, outFolder, targetList):
-    import shutil
-    
     bufLoc = outFolder + "/buf"
     # Assign bin number to the median and average file
     numBin = assignBin(num_bin, bufLoc+"/average.txt", bufLoc+"/bin", targetList, params.MINEXON)
@@ -409,7 +409,6 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
 
             # Large Region CBS
             if (params.LARGE != "False"):
-                print "DEBUG 266a"
                 rScriptName2 = os.path.join(scriptPath, "scripts", "large_region_cbs.R")
                 args = shlex.split("Rscript %s %s %s %s %s %s %s %s %s"
                 %(rScriptName2, tableName+".txt", params.SMALLSEGMENT, params.LARGESEGMENT, params.PVAL, params.PASSSIZE, params.LRS, params.LRE, bufLoc))
@@ -419,11 +418,6 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
                 print "params.LARGE was False"
         else:
             print "Table not found"
-
-def removeTempFolder(tempFolderPath):
-    shutil.rmtree(tempFolderPath)
-    print "Temp Folder Removed"
-
 
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--version":
@@ -457,9 +451,9 @@ def main():
         test_bam = bufLoc + "/test.BAM"
         ctr_bam  = bufLoc + "/control.BAM"
 
-        samTest = Process(target= samToBam, args=(params.TEST, test_bam))
+        samTest = Process(target=samToBam, args=(params.TEST, test_bam))
         if params.BEDINPUT == "False":
-            samCtr = Process(target= samToBam, args=(params.CONTROL, ctr_bam))
+            samCtr = Process(target=samToBam, args=(params.CONTROL, ctr_bam))
 
         samTest.start()
         if params.BEDINPUT == "False":
@@ -565,7 +559,7 @@ def main():
     print "Binning ... "
     binProc = []
     for numBin in params.NUMBIN:    
-        binProc.append(Process(target= analysisPerBin, args=(params,numBin,outFolder,targetList)))
+        binProc.append(Process(target=analysisPerBin, args=(params,numBin,outFolder,targetList)))
 
     for proc in binProc:
         proc.start()
@@ -574,7 +568,7 @@ def main():
         proc.join()
         
     # Removed Temp Folder 
-    removeTempFolder(bufLoc)
+    rmtree(bufLoc)
     
 if __name__ == "__main__":
     main()
