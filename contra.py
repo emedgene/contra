@@ -29,17 +29,18 @@ from optparse import OptionParser
 import sys
 import subprocess
 import shlex
+import shutil
 from multiprocessing import Process, Manager
 
-from scripts.assign_bin_number_v2 import *
-from scripts.average_count import *
-from scripts.cn_apply_threshold import *
-from scripts.convert_gene_coordinate import *
-from scripts.convert_targeted_regions import *
-from scripts.split_chromosome import *
-from scripts.get_chr_length import *
-from scripts.count_libsize import *
-from scripts.target_breakdown import *
+from scripts.assign_bin_number_v2 import assignBin
+from scripts.average_count import averageCount
+from scripts.cn_apply_threshold import applyThreshold
+from scripts.convert_gene_coordinate import convertGeneCoordinate
+from scripts.convert_targeted_regions import convertTarget
+from scripts.split_chromosome import splitByChromosome
+from scripts.get_chr_length import get_genome
+from scripts.count_libsize import get_libsize
+from scripts.target_breakdown import target_breakdown
 
 #VERSION
 VERSION="2.0.8"
@@ -161,32 +162,21 @@ class Params:
         if options.target:
             self.TARGET = options.target
         else:
-            #self.parser.print_help()
-            #self.parser.error("--target not supplied")
             self.ERRORLIST.append("target")
 
         if options.test:
             self.TEST = options.test
         else:
-            #self.parser.error("--test not supplied")
             self.ERRORLIST.append("test")
 
         if options.control:
             self.CONTROL = options.control
         else:
-            #self.parser.error("--control not supplied")
             self.ERRORLIST.append("control")
-
-#        if options.fasta:
-#            self.FASTA = options.fasta
-#        else:
-#            #self.parser.error("--fasta not supplied")
-#            self.ERRORLIST.append("fasta")
 
         if options.outFolder:
             self.OUTFOLDER = options.outFolder
         else:
-            #self.parser.error("--outFolder not supplied")
             self.ERRORLIST.append("outfolder")
 
         if len(self.ERRORLIST) != 0:
@@ -242,7 +232,7 @@ class Params:
         if options.passSize:
             self.PASSSIZE    = options.passSize
             
-                ### either "False" or True atn
+        ### either "False" or True atn
         if options.removeDups:
             self.REMOVEDUPS = str(options.removeDups)
             
@@ -251,7 +241,6 @@ class Params:
         print "target        :", self.TARGET
         print "test        :", self.TEST
         print "control        :", self.CONTROL
-#        print "fasta        :", self.FASTA
         print "outfolder    :", self.OUTFOLDER
         print "numBin        :", self.NUMBIN
         print "minreaddepth    :", self.MINREADDEPTH
@@ -293,12 +282,11 @@ def checkOutputFolder(outF):
 
 #BEDINPUT
 def countTotalReads3(params, folder):
-    tempFileName    = folder + "/temp.txt"
-        tempReadFile    = open(tempFileName, "w")
-    libsize        = get_libsize(params.BEDINPUT)
+    tempFileName = folder + "/temp.txt"
+    tempReadFile = open(tempFileName, "w")
+    libsize = get_libsize(params.BEDINPUT)
     tempReadFile.write(libsize)
-        #tempReadFile.write(params.CONTROLREADCOUNT)
-        tempReadFile.close()
+    tempReadFile.close()
 
 
 def countTotalReads(params, folder):
@@ -317,16 +305,16 @@ def samToBam(samfile, bamfile):
     return bamfile
 
 def removeMultiMapped(inF, newBAM):
-        # Get New BAM Files with mapping quality > 0
-        args = shlex.split("samtools view -bq 1 %s -o %s" %(inF, newBAM))
+    # Get New BAM Files with mapping quality > 0
+    args = shlex.split("samtools view -bq 1 %s -o %s" %(inF, newBAM))
     removeMM = subprocess.call(args)
-        print "Multi mapped reads removed. "
+    print "Multi mapped reads removed. "
         
 def removeDups(inF, newBAM):
-        # Remove
-        args = shlex.split("samtools view -b -F 0x400 %s -o %s" %(inF, newBAM))
+    # Remove
+    args = shlex.split("samtools view -b -F 0x400 %s -o %s" %(inF, newBAM))
     removeDupsCall = subprocess.call(args)
-        print "Removed PCR duplicates. "
+    print "Removed PCR duplicates. "
         
 #BEDINPUT
 def convertBamSimple(params, folder, targetList, genomeFile):
@@ -341,11 +329,11 @@ def convertBamSimple(params, folder, targetList, genomeFile):
     os.system("cp %s %s" %(inF, folder+"sample.BEDGRAPH"))
 
     # Split Bedgraph by its chromosomes
-        splitByChromosome(folder)
+    splitByChromosome(folder)
 
-        # Slice the coverage files to only cover the targeted regions
-        print "Getting targeted regions DOC..."
-        convertGeneCoordinate(targetList, folder)
+    # Slice the coverage files to only cover the targeted regions
+    print "Getting targeted regions DOC..."
+    convertGeneCoordinate(targetList, folder)
         
     # LIBSIZE
     libsize = str(get_libsize(folder+"geneRefCoverage2.txt"))
@@ -367,10 +355,7 @@ def convertBam(params, folder, targetList, genomeFile):
     # Convert BAM Files to BEDGRAPH
     bedgraph = folder + "sample.BEDGRAPH"
     args = shlex.split("genomeCoverageBed -ibam %s -bga -g %s" %(inF, genomeFile))
-    print "DEBUG 123 " + " ".join(args)
-    #output = subprocess.Popen(args, stdout = subprocess.PIPE).communicate()[0]
     iOutFile = open(bedgraph, "w")
-    #iOutFile.write(output)
     output    = subprocess.Popen(args, stdout = iOutFile).wait()
     iOutFile.close()
 
@@ -431,15 +416,12 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
                 rscr2 = subprocess.call(args)
                 print str(args)
             else:
-                print "DEBUG 266b"
+                print "params.LARGE was False"
         else:
             print "Table not found"
 
 def removeTempFolder(tempFolderPath):
-    import shutil
-    
     shutil.rmtree(tempFolderPath)
-
     print "Temp Folder Removed"
 
 

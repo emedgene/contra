@@ -191,5 +191,3 @@ def averageCount(tFile, nFile, averageOut, tReadCount, nReadCount, rd_threshold,
 			output.write(str(round(max_logratio,3)) + "\n")
 
 	output.close()
-
-	#print "End of averageCount.py with the last target = '%s'" %(initial) 
