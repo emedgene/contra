@@ -411,7 +411,8 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
         tNameId = str(num_bin) + "bins"
     else:
         tNameId = str(num_bin) + "bin"
-        for tName in tNameList:
+    
+    for tName in tNameList:
         if tNameId in tName:
             break
 
@@ -513,7 +514,6 @@ def main():
         if params.BEDINPUT == "False":
                     params.CONTROL = ctr_bam
 
-        ###
     # Remove PCR duplicates if --removeDups specified
     if (params.REMOVEDUPS == "True"):
                 print "Removing reads marked as duplicates (PCR)"
