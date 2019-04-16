@@ -37,7 +37,6 @@ from scripts.cn_apply_threshold import *
 from scripts.convert_gene_coordinate import *
 from scripts.convert_targeted_regions import *
 from scripts.split_chromosome import *
-from scripts.vcf_out import *
 from scripts.get_chr_length import *
 from scripts.count_libsize import *
 from scripts.target_breakdown import *
@@ -276,9 +275,6 @@ def checkOutputFolder(outF):
         os.mkdir(outF)
     except:
         print "output folder already exists: " + outF
-#        print "cannot create folder '%s'" %outF
-#        print "if folder already exist, please specify other folder"
-#        sys.exit(1)
     
     try:
         os.mkdir(outF+"/table")
@@ -386,7 +382,7 @@ def convertBam(params, folder, targetList, genomeFile):
     convertGeneCoordinate(targetList, folder)
     
     # LIBSIZE
-        libsize = str(get_libsize(folder+"geneRefCoverage2.txt"))
+    libsize = str(get_libsize(folder+"geneRefCoverage2.txt"))
     tempLibSize = open(folder + "temp.txt", "w")
     tempLibSize.write(libsize)
     tempLibSize.close()
@@ -399,11 +395,6 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
     bufLoc = outFolder + "/buf"
     # Assign bin number to the median and average file
     numBin = assignBin(num_bin, bufLoc+"/average.txt", bufLoc+"/bin", targetList, params.MINEXON)
-    
-    #copy bin_boundary to plot folder
-    #outBounFile = os.path.join(outFolder,  "plot", "bin_boundary"+str(num_bin))
-    #curBounFile = os.path.join(bufLoc, "bin" + str(num_bin) + ".boundaries.txt")
-    #shutil.copy(curBounFile, outBounFile)
 
 
     print "Significance Test ...  "
@@ -440,24 +431,6 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
                 print str(args)
             else:
                 print "DEBUG 266b"
-
-            # Generate the DNA sequence (for VCF file)
-            print  "Skipping VCF generation.. use tabular file instead."
-    #        bedFile  = bufTable + ".BED"
-    #        bedFasta = bufTable + ".fastaOut.txt"
-    #        fastaFile = params.FASTA
-    #        args = shlex.split("fastaFromBed -fi %s -bed %s -fo %s -name"
-    #                %(fastaFile, bedFile, bedFasta))
-    #        print (" ".join(args))
-    #        fastaBED = subprocess.call(args)
-    #
-    #        # Write VCF
-    #        print  "Creating VCF file ... "
-    #        vcfFile = tableName + ".vcf"
-    #        vcf_out(bedFasta, vcfFile)
-    #
-    #        print "%s created. " %(vcfFile)
-
         else:
             print "Table not found"
 
