@@ -8,11 +8,12 @@ import subprocess
 import shutil
 import math
 from optparse import OptionParser
-from scripts.split_chromosome import splitByChromosome3 as splitByChromosome
-from scripts.get_chr_length import *
-from scripts.convert_targeted_regions import *
+from scripts.split_chromosome import splitFileByChromosome
+from scripts.get_chr_length import get_genome
+from scripts.convert_targeted_regions import convertTarget
 from scripts.convert_gene_coordinate import convertGeneCoordinate2 as convertGeneCoordinate
 from multiprocessing import Pool
+
 
 class Params:
 	"""
@@ -92,6 +93,57 @@ class Params:
 		print "name	:", self.NAME
 
 
+def gm_mean(xs):
+        tmpprod = 1
+        p = 1.0/len(xs)
+        for x in xs:
+                tmpprod = tmpprod * math.pow(x,p)
+        return tmpprod
+
+
+def meanstdv(x):
+        n, mean, std = len(x), 0, 0
+        for a in x:
+                mean = mean+a
+        mean = mean / float(n)
+        for a in x:
+                std = std+(a-mean)**2
+        std=math.sqrt(std/float(n-1))
+        return mean, std
+
+
+def make_new_directory(outdir):
+	print outdir
+	if not os.path.exists(outdir):
+		os.mkdir(outdir)
+
+
+def processInFile(infile):
+	infilename = os.path.basename(infile)
+	s_outdir = os.path.join(outdir, infilename)
+	make_new_directory(s_outdir)
+    genomeFile = os.path.join(s_outdir,infilename +'.chrsummary')
+    get_genome(infile, genomeFile)
+
+    bedgraph = os.path.join(s_outdir, infilename + ".BEDGRAPH")
+    args = shlex.split("genomeCoverageBed -ibam %s -bga -g %s" %(infile, genomeFile))
+    iOutFile = open(bedgraph, "w")
+    output = subprocess.Popen(args, stdout = iOutFile).wait()
+    iOutFile.close()
+
+    targetList = convertTarget(targetFile2)
+
+    splitFileByChromosome(bedgraph)
+
+    convertGeneCoordinate(targetList, os.path.dirname(bedgraph)+"/")
+    bedgraph_tgtonly = bedgraph+".TARGETONLY"
+    bedgraph_tgtonly_avg = bedgraph+".TARGETONLY.AVERAGE"
+    os.rename(os.path.join(os.path.dirname(bedgraph),"geneRefCoverage.txt"),bedgraph_tgtonly)
+    os.rename(os.path.join(os.path.dirname(bedgraph),"geneRefCoverage_targetAverage.txt"),bedgraph_tgtonly_avg)
+	shutil.copy(bedgraph_tgtonly,outdir)
+	shutil.copy(bedgraph_tgtonly_avg,outdir)
+
+
 # option handling
 params = Params() 
 #params.repeat()
@@ -106,11 +158,6 @@ for files in infiles:
 	print "File:", files
 print "Output Directory: ", output_dir
 
-def make_new_directory(outdir):
-	print outdir
-	if not os.path.exists(outdir):
-		os.mkdir(outdir)
-
 print " ----- creating output directory -----"
 make_new_directory(output_dir)
 outdir	= os.path.join(output_dir, "buf")
@@ -118,31 +165,6 @@ make_new_directory(outdir)
 
 targetFile2 = os.path.join(outdir, os.path.basename(targetFile)+".sorted")
 os.system("sort -k1,1 -k2n %s > %s" %(targetFile,targetFile2))
-
-def processInFile(infile):
-	infilename = os.path.basename(infile)
-	s_outdir = os.path.join(outdir, infilename)
-	make_new_directory(s_outdir)
-        genomeFile = os.path.join(s_outdir,infilename +'.chrsummary')
-        get_genome(infile, genomeFile)
-
-        bedgraph = os.path.join(s_outdir, infilename + ".BEDGRAPH")
-        args = shlex.split("genomeCoverageBed -ibam %s -bga -g %s" %(infile, genomeFile))
-        iOutFile = open(bedgraph, "w")
-        output = subprocess.Popen(args, stdout = iOutFile).wait()
-        iOutFile.close()
-
-        targetList = convertTarget(targetFile2)
-
-        splitByChromosome(bedgraph)
-
-        convertGeneCoordinate(targetList, os.path.dirname(bedgraph)+"/")
-        bedgraph_tgtonly = bedgraph+".TARGETONLY"
-        bedgraph_tgtonly_avg = bedgraph+".TARGETONLY.AVERAGE"
-        os.rename(os.path.join(os.path.dirname(bedgraph),"geneRefCoverage.txt"),bedgraph_tgtonly)
-        os.rename(os.path.join(os.path.dirname(bedgraph),"geneRefCoverage_targetAverage.txt"),bedgraph_tgtonly_avg)
-	shutil.copy(bedgraph_tgtonly,outdir)
-	shutil.copy(bedgraph_tgtonly_avg,outdir)
 
 print "----- Processing Files -----"
 pool = Pool(5)
@@ -201,26 +223,7 @@ fh.readline()
 lineCount=0
 nSamples_exclude = int(math.floor(TRIM*nSamples))
 
-def gm_mean(xs):
-        tmpprod = 1
-        p = 1.0/len(xs)
-        for x in xs:
-                tmpprod = tmpprod * math.pow(x,p)
-        return tmpprod
-
 Ns_gmean = gm_mean(Ns)
-
-def meanstdv(x):
-        from math import sqrt
-        n, mean, std = len(x), 0, 0
-        for a in x:
-                mean = mean+a
-        mean = mean / float(n)
-        for a in x:
-                std = std+(a-mean)**2
-        std=sqrt(std/float(n-1))
-        return mean, std
-
 
 libsize = 0
 for line in fh:
@@ -243,11 +246,3 @@ fh.close()
 foh.close()
 fo_libsize_h.close()
 
-def removeTempFolder(tempFolderPath):
-	import shutil
-
-	shutil.rmtree(tempFolderPath)
-	print "Temp Folder Removed"
-
-# Removed Temp Folder
-#removeTempFolder(outdir)

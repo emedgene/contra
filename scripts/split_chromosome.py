@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------#
-# Copyright (c) 2011, Richard Lupat & Jason Li.
+# Copyright (c) 2019, Richard Lupat, Jason Li, Adam Lev-Libfeld
 #
 # > Source License <
 # This file is part of CONTRA.
@@ -19,34 +19,41 @@
 #
 # 
 #-----------------------------------------------------------------------#
-# Last Updated : 03 Sep 2011 15:00PM
-
+# Last Updated : 2019-04-17 15:59
 
 import os
 
-def splitByChromosome(destFolder):
+def splitByChromosome(destFolder, inputfile, skip_headers=True):
+	infile
+    try:
+        os.mkdir(destFolder + "chr/")
+    except:
+        print "folder exist"
 
-	try:
-		os.mkdir(destFolder + "chr/")
-	except:
-		print "folder exist"
+    outputfile = destFolder + "chr/chr1.txt"
+    file = open(inputfile,"r")
+    output = open(outputfile,"w")
+    check = "1"
 
-	inputfile = destFolder + "sample.BEDGRAPH"
-	outputfile = destFolder + "chr/chr1.txt"
-	file = open(inputfile,"r")
-	output = open(outputfile,"w")
-	check = "1"
+    for row in file:
+        if skip_headers and row[0] == '#':
+            continue
 
-	for row in file:
-		if row[0] == '#':
-			continue
+        cols = row.split()
+        chr = cols[0].strip("chr")
+        if (chr != check):
+            output.close()
+            check = chr
+            output = open(destFolder+ "chr/chr"+check+".txt","w")
+        output.write(row)
 
-		cols = row.split()
-		chr = cols[0].strip("chr")
-		if (chr != check):
-			output.close()
-			check = chr
-			output = open(destFolder+ "chr/chr"+check+".txt","w")
-		output.write(row)
+    output.close()
 
-	output.close()
+def splitFolderByChromosome(destFolder):
+	infile = destFolder + "sample.BEDGRAPH"
+	splitByChromosome(destFolder, infile, skip_headers=True)
+
+
+def splitFileByChromosome(infile):
+    destFolder = os.path.dirname(infile)+"/"
+    splitByChromosome(destFolder, infile, skip_headers=False)

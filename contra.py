@@ -37,7 +37,7 @@ from scripts.average_count import averageCount
 from scripts.cn_apply_threshold import applyThreshold
 from scripts.convert_gene_coordinate import convertGeneCoordinate
 from scripts.convert_targeted_regions import convertTarget
-from scripts.split_chromosome import splitByChromosome
+from scripts.split_chromosome import splitFolderByChromosome
 from scripts.get_chr_length import get_genome
 from scripts.count_libsize import get_libsize
 from scripts.target_breakdown import target_breakdown
@@ -331,7 +331,7 @@ def convertBamSimple(params, folder, targetList, genomeFile):
     os.system("cp %s %s" %(inF, folder+"sample.BEDGRAPH"))
 
     # Split Bedgraph by its chromosomes
-    splitByChromosome(folder)
+    splitFolderByChromosome(folder)
 
     # Slice the coverage files to only cover the targeted regions
     print "Getting targeted regions DOC..."
@@ -362,7 +362,7 @@ def convertBam(params, folder, targetList, genomeFile):
     iOutFile.close()
 
     # Split Bedgraph by its chromosomes
-    splitByChromosome(folder)
+    splitFolderByChromosome(folder)
 
     # Slice the coverage files to only cover the targeted regions
     print "Getting targeted regions DOC..."
