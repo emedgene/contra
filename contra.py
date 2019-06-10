@@ -499,7 +499,7 @@ def main():
                 
         bamTest = Process(target = removeDups, args=(params.TEST, test_bam))
         if params.BEDINPUT == "False":
-                    bamCtr = Process(target = removeDups, args=(params.CONTROL, ctr_bam))
+            bamCtr = Process(target = removeDups, args=(params.CONTROL, ctr_bam))
 
         bamTest.start()
         if params.BEDINPUT == "False":
