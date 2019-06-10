@@ -26,7 +26,7 @@ gdict = {}
 #errors = open(error_out, 'w')
 
 if len(sys.argv) < 4:
-    print "2_process.py: not enough input arguments"
+    print("2_process.py: not enough input arguments")
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -93,7 +93,7 @@ def process_file(f_in):
     exons = {}
 
     # Temp list of all genes in gdict
-    all_genes = gdict.keys()
+    all_genes = list(gdict.keys())
     
     # Preprocessing
     contra = []
@@ -122,7 +122,7 @@ def process_file(f_in):
                 exon_n = 1
                 exons[currgene] = {}
             else:
-                exon_n = len(exons[currgene].keys()) + 1
+                exon_n = len(list(exons[currgene].keys())) + 1
                 
         # If its a new exon...
         elif line[START_IND] != temp[1]: # ie coordinates don't match up
@@ -141,9 +141,9 @@ def process_file(f_in):
 
     # Add appropriate data to global dictionary gdict
     # If gdict not yet populated (empty):
-    for gene in exons.keys():
-        exon_list = gdict[gene].keys()
-        for exon in exons[gene].keys():
+    for gene in list(exons.keys()):
+        exon_list = list(gdict[gene].keys())
+        for exon in list(exons[gene].keys()):
             start = int(exons[gene][exon][0])
             end = int(exons[gene][exon][1])
             ch = exons[gene][exon][3].replace("chr","")
@@ -233,7 +233,7 @@ f2.close()
 
 gdict2 = copy.deepcopy(gdict)
 
-for gene in gdict2.keys():
+for gene in list(gdict2.keys()):
     if ';' in gene: # If gene needs to be split
         #print 'splitting',gene
         components = gene.split(';')
@@ -250,7 +250,7 @@ wholegene = open(wholegene_output, 'w')
 wholegene.write("Gene\tRatio\n")
 for gene in sorted(gdict2.keys()):
     sample_temp = []
-    for exon in gdict2[gene].keys(): # For each exon (in that gene):
+    for exon in list(gdict2[gene].keys()): # For each exon (in that gene):
         #print len(gdict[gene][exon])
         #print "i = "+str(i)+" len(gdict[gene][exon])"+ str(len(gdict[gene][exon]))
         sample_temp.append(gdict2[gene][exon][0]) # collect the log ratio of that exon of that sample (of that gene)
@@ -263,7 +263,7 @@ wholegene.close()
 
 #if sys.argv[4] == 'T':
 if debug == 'T':
-    print "2_process.py: created "+wholegene_output
-    print "2_process.py: created "+exon_output
+    print("2_process.py: created "+wholegene_output)
+    print("2_process.py: created "+exon_output)
 
 

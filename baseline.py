@@ -85,11 +85,11 @@ class Params:
 
 	def repeat(self):
 		#params test
-		print "target	:", self.TARGET
-		print "files	:", self.FILES
-		print "output	:", self.OUTPUT
-		print "trim	:", self.TRIM
-		print "name	:", self.NAME
+		print("target	:", self.TARGET)
+		print("files	:", self.FILES)
+		print("output	:", self.OUTPUT)
+		print("trim	:", self.TRIM)
+		print("name	:", self.NAME)
 
 
 # option handling
@@ -100,18 +100,18 @@ infiles		= params.FILES
 output_dir	= params.OUTPUT
 
 #Debug
-print " ------ baseline.py ------- "
-print "Target:", targetFile
+print(" ------ baseline.py ------- ")
+print("Target:", targetFile)
 for files in infiles:
-	print "File:", files
-print "Output Directory: ", output_dir
+	print("File:", files)
+print("Output Directory: ", output_dir)
 
 def make_new_directory(outdir):
-	print outdir
+	print(outdir)
 	if not os.path.exists(outdir):
 		os.mkdir(outdir)
 
-print " ----- creating output directory -----"
+print(" ----- creating output directory -----")
 make_new_directory(output_dir)
 outdir	= os.path.join(output_dir, "buf")
 make_new_directory(outdir)
@@ -144,7 +144,7 @@ def processInFile(infile):
 	shutil.copy(bedgraph_tgtonly,outdir)
 	shutil.copy(bedgraph_tgtonly_avg,outdir)
 
-print "----- Processing Files -----"
+print("----- Processing Files -----")
 pool = Pool(5)
 pool.map(processInFile,infiles)
 
@@ -155,7 +155,7 @@ allfiles_path 	= [os.path.join(outdir,x) for x in allfiles_names]
 
 args=["unionBedGraphs","-header","-i"]+allfiles_path+["-names"]+allfiles_names
 
-print (str(args))
+print((str(args)))
 fo	= os.path.join(outdir,"TARGETONLY.union.txt")
 foh	= open(fo,"w")
 
@@ -247,7 +247,7 @@ def removeTempFolder(tempFolderPath):
 	import shutil
 
 	shutil.rmtree(tempFolderPath)
-	print "Temp Folder Removed"
+	print("Temp Folder Removed")
 
 # Removed Temp Folder
 #removeTempFolder(outdir)

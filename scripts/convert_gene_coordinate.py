@@ -52,7 +52,7 @@ def convertGeneCoordinate(targetList, bufLocFolder):
 			continue
 
 		if (prevchr != chr):
-			print chr #progress checking
+			print(chr) #progress checking
 			prevchr = chr
 			t = 0
 			ff=inputfile2+chr+".txt"

@@ -238,26 +238,26 @@ class Params:
             
     def repeat(self):
         # params test
-        print "target        :", self.TARGET
-        print "test        :", self.TEST
-        print "control        :", self.CONTROL
-        print "outfolder    :", self.OUTFOLDER
-        print "numBin        :", self.NUMBIN
-        print "minreaddepth    :", self.MINREADDEPTH
-        print "minNBases    :", self.MINNBASES
-        print "sam        :", self.SAM
-        print "pval        :", self.PVAL
-        print "sampleName    :", self.SAMPLENAME
-        print "nomultimapped    :", self.NOMULTIMAPPED
-        print "plot        :", self.PLOT
-        print "bedInput        :", self.BEDINPUT
-        print "minExon        :", self.MINEXON
-        print "largeDeletion    :", self.LARGE
-        print "removeDups    :", self.REMOVEDUPS
+        print("target        :", self.TARGET)
+        print("test        :", self.TEST)
+        print("control        :", self.CONTROL)
+        print("outfolder    :", self.OUTFOLDER)
+        print("numBin        :", self.NUMBIN)
+        print("minreaddepth    :", self.MINREADDEPTH)
+        print("minNBases    :", self.MINNBASES)
+        print("sam        :", self.SAM)
+        print("pval        :", self.PVAL)
+        print("sampleName    :", self.SAMPLENAME)
+        print("nomultimapped    :", self.NOMULTIMAPPED)
+        print("plot        :", self.PLOT)
+        print("bedInput        :", self.BEDINPUT)
+        print("minExon        :", self.MINEXON)
+        print("largeDeletion    :", self.LARGE)
+        print("removeDups    :", self.REMOVEDUPS)
 
 
 def checkOutputFolder(outF):
-    print "Creating Output Folder :",
+    print("Creating Output Folder :", end=' ')
  
     if outF[len(outF)-1] == "/":
         outF = outF[:len(outF)-1]
@@ -265,7 +265,7 @@ def checkOutputFolder(outF):
     try:
         os.mkdir(outF)
     except:
-        print "output folder already exists: " + outF
+        print("output folder already exists: " + outF)
     
     try:
         os.mkdir(outF+"/table")
@@ -274,10 +274,10 @@ def checkOutputFolder(outF):
         os.mkdir(outF+"/buf/ctrData/")
         os.mkdir(outF+"/buf/testData/")
     except:
-        print "[ERROR: CANNOT CREATE SUBFOLDERS]"
+        print("[ERROR: CANNOT CREATE SUBFOLDERS]")
         sys.exit(1)
 
-    print " Done."
+    print(" Done.")
 
     return outF
 
@@ -310,22 +310,22 @@ def removeMultiMapped(inF, newBAM):
     # Get New BAM Files with mapping quality > 0
     args = shlex.split("samtools view -bq 1 %s -o %s" %(inF, newBAM))
     removeMM = subprocess.call(args)
-    print "Multi mapped reads removed. "
+    print("Multi mapped reads removed. ")
         
 def removeDups(inF, newBAM):
     # Remove
     args = shlex.split("samtools view -b -F 0x400 %s -o %s" %(inF, newBAM))
     removeDupsCall = subprocess.call(args)
-    print "Removed PCR duplicates. "
+    print("Removed PCR duplicates. ")
         
 #BEDINPUT
 def convertBamSimple(params, folder, targetList, genomeFile):
     if 'testData' in folder:
-                inF = params.TEST
-                print "Converting TEST Sample... "
-        else:
-                inF = params.CONTROL
-                print "Converting CONTROL Sample... "
+        inF = params.TEST
+        print("Converting TEST Sample... ")
+    else:
+        inF = params.CONTROL
+        print("Converting CONTROL Sample... ")
     
     #Copy file to working folder
     os.system("cp %s %s" %(inF, folder+"sample.BEDGRAPH"))
@@ -334,7 +334,7 @@ def convertBamSimple(params, folder, targetList, genomeFile):
     splitByChromosome(folder)
 
     # Slice the coverage files to only cover the targeted regions
-    print "Getting targeted regions DOC..."
+    print("Getting targeted regions DOC...")
     convertGeneCoordinate(targetList, folder)
         
     # LIBSIZE
@@ -343,16 +343,16 @@ def convertBamSimple(params, folder, targetList, genomeFile):
     tempLibSize.write(libsize)
     tempLibSize.close()
 
-    print "Targeted regions pre-processing: Done"
+    print("Targeted regions pre-processing: Done")
 
 
 def convertBam(params, folder, targetList, genomeFile):
     if 'testData' in folder:
         inF = params.TEST
-        print "Converting TEST Sample... "
+        print("Converting TEST Sample... ")
     else:
         inF = params.CONTROL
-        print "Converting CONTROL Sample... "
+        print("Converting CONTROL Sample... ")
     
     # Convert BAM Files to BEDGRAPH
     bedgraph = folder + "sample.BEDGRAPH"
@@ -365,7 +365,7 @@ def convertBam(params, folder, targetList, genomeFile):
     splitByChromosome(folder)
 
     # Slice the coverage files to only cover the targeted regions
-    print "Getting targeted regions DOC..."
+    print("Getting targeted regions DOC...")
     convertGeneCoordinate(targetList, folder)
     
     # LIBSIZE
@@ -374,7 +374,7 @@ def convertBam(params, folder, targetList, genomeFile):
     tempLibSize.write(libsize)
     tempLibSize.close()
 
-    print "Targeted regions pre-processing: Done"        
+    print("Targeted regions pre-processing: Done")        
 
 def analysisPerBin(params, num_bin, outFolder, targetList):
     bufLoc = outFolder + "/buf"
@@ -382,14 +382,14 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
     numBin = assignBin(num_bin, bufLoc+"/average.txt", bufLoc+"/bin", targetList, params.MINEXON)
 
 
-    print "Significance Test ...  "
+    print("Significance Test ...  ")
     rScriptName = os.path.join(scriptPath, "scripts", "cn_analysis.v3.R")
     args = shlex.split("Rscript %s %s %s %s %s %s %s %s %s %s %s" 
         %(rScriptName, num_bin, params.MINREADDEPTH, params.MINNBASES, outFolder, params.SAMPLENAME,params.PLOT, numBin, params.MINCONTROL, params.MINTEST, params.MINAVG))
     rscr = subprocess.call(args)
 
 
-    print "Generating Output Files ... "
+    print("Generating Output Files ... ")
     # Analysis of CNV
     tNameList = os.listdir(outFolder+"/table/")
     if num_bin > 1:
@@ -413,15 +413,15 @@ def analysisPerBin(params, num_bin, outFolder, targetList):
                 args = shlex.split("Rscript %s %s %s %s %s %s %s %s %s"
                 %(rScriptName2, tableName+".txt", params.SMALLSEGMENT, params.LARGESEGMENT, params.PVAL, params.PASSSIZE, params.LRS, params.LRE, bufLoc))
                 rscr2 = subprocess.call(args)
-                print str(args)
+                print(str(args))
             else:
-                print "params.LARGE was False"
+                print("params.LARGE was False")
         else:
-            print "Table not found"
+            print("Table not found")
 
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--version":
-        print VERSION
+        print(VERSION)
         sys.exit(1)
     
     # option handling
@@ -446,7 +446,7 @@ def main():
 
     # convert sam to bam if -sam specified
     if (params.SAM == "True"):
-        print "Pre-processing SAM files"
+        print("Pre-processing SAM files")
 
         test_bam = bufLoc + "/test.BAM"
         ctr_bam  = bufLoc + "/control.BAM"
@@ -469,49 +469,49 @@ def main():
 
     # remove multi mapped reads if --nomultimapped is specified
     if (params.NOMULTIMAPPED == "True"):
-        print "Removing multi-mapped reads"
+        print("Removing multi-mapped reads")
 
         test_bam = bufLoc + "/test_reliable.BAM"
-                ctr_bam  = bufLoc + "/control_reliable.BAM"
+        ctr_bam  = bufLoc + "/control_reliable.BAM"
 
-                bamTest = Process(target= removeMultiMapped, args=(params.TEST, test_bam))
+        bamTest = Process(target= removeMultiMapped, args=(params.TEST, test_bam))
         if params.BEDINPUT == "False":
-                    bamCtr = Process(target= removeMultiMapped, args=(params.CONTROL, ctr_bam))
+            bamCtr = Process(target= removeMultiMapped, args=(params.CONTROL, ctr_bam))
 
-                bamTest.start()
+        bamTest.start()
         if params.BEDINPUT == "False":
-                    bamCtr.start()
+            bamCtr.start()
 
-                bamTest.join()
+        bamTest.join()
         if params.BEDINPUT == "False":
-                    bamCtr.join()
+            bamCtr.join()
 
-                params.TEST = test_bam
+        params.TEST = test_bam
         if params.BEDINPUT == "False":
-                    params.CONTROL = ctr_bam
+            params.CONTROL = ctr_bam
 
     # Remove PCR duplicates if --removeDups specified
     if (params.REMOVEDUPS == "True"):
-                print "Removing reads marked as duplicates (PCR)"
+        print("Removing reads marked as duplicates (PCR)")
                 
         test_bam = bufLoc + "/test_removedups.BAM"
-                ctr_bam  = bufLoc + "/control_removedups.BAM"
+        ctr_bam  = bufLoc + "/control_removedups.BAM"
                 
-                bamTest = Process(target = removeDups, args=(params.TEST, test_bam))
+        bamTest = Process(target = removeDups, args=(params.TEST, test_bam))
         if params.BEDINPUT == "False":
                     bamCtr = Process(target = removeDups, args=(params.CONTROL, ctr_bam))
 
-                bamTest.start()
+        bamTest.start()
         if params.BEDINPUT == "False":
-                    bamCtr.start()
+            bamCtr.start()
 
-                bamTest.join()
+        bamTest.join()
         if params.BEDINPUT == "False":
-                    bamCtr.join()
+            bamCtr.join()
 
-                params.TEST = test_bam
+        params.TEST = test_bam
         if params.BEDINPUT == "False":
-                    params.CONTROL = ctr_bam
+            params.CONTROL = ctr_bam
                 
     
     # Get Chromosome Length
@@ -524,7 +524,6 @@ def main():
 
     #BEDINPUT
     if params.BEDINPUT == "False":
-
         cTest = Process(target= convertBam, 
             args=(params, bufLoc+'/ctrData/' , targetList, genomeFile))
     else:
@@ -544,19 +543,19 @@ def main():
             t1 = int(file.readlines(open(folder+"temp.txt"))[0].strip("\n"))
         else:
             n1 = int(file.readlines(open(folder+"temp.txt"))[0].strip("\n"))
-    print "Test file read depth     = ", t1
-    print "Control file read depth     = ", n1
-    print "Pre-processing Completed. "
+    print("Test file read depth     = ", t1)
+    print("Control file read depth     = ", n1)
+    print("Pre-processing Completed. ")
     
     # Get the Average of the Log Ratio    
-    print "Getting the Log Ratio ... "
+    print("Getting the Log Ratio ... ")
     testListName = bufLoc + '/testData/geneRefCoverage.txt'
     controlListName = bufLoc + '/ctrData/geneRefCoverage.txt'
     avOut = bufLoc + "/average.txt"
     averageCount(testListName, controlListName, avOut, t1, n1, params.MINREADDEPTH, params.MINNBASES)    
 
     # Analysis. [Bin, significance test, large deletion, vcf output]     
-    print "Binning ... "
+    print("Binning ... ")
     binProc = []
     for numBin in params.NUMBIN:    
         binProc.append(Process(target=analysisPerBin, args=(params,numBin,outFolder,targetList)))
@@ -572,4 +571,4 @@ def main():
     
 if __name__ == "__main__":
     main()
-    print "Done... "
+    print("Done... ")

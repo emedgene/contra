@@ -77,7 +77,7 @@ def applyThreshold(outputName, bufTable, threshold, maxGap):
 		
 			if prevChr == '' and prevStatus == '':
 				if chr not in chrList:
-					print chr
+					print(chr)
 					chrList.append(chr)
 			elif (chr == prevChr) and (status == prevStatus) and (gap < maxGap):
 				start = prevStart

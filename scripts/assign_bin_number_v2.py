@@ -138,7 +138,7 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 			oriEnd		= target.end
 
 		else:
-			print "ERROR..."
+			print("ERROR...")
 
 		f_bin_number = str(bin_number_dict[bin_list[count]])
 		binOut.write("\t".join([exons.strip("\n"), f_bin_number,chr, oriStart, oriEnd]))
@@ -146,7 +146,7 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 		count += 1
 
 	binOut.close()
-	print "End of assign.bin.number.py with %s exons in %s bins" %(count, final_number_of_bin)
+	print("End of assign.bin.number.py with %s exons in %s bins" %(count, final_number_of_bin))
 
 
 	return final_number_of_bin

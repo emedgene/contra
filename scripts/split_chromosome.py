@@ -29,7 +29,7 @@ def splitByChromosome(destFolder):
 	try:
 		os.mkdir(destFolder + "chr/")
 	except:
-		print "folder exist"
+		print("folder exist")
 
 	inputfile = destFolder + "sample.BEDGRAPH"
 	outputfile = destFolder + "chr/chr1.txt"

@@ -10,7 +10,7 @@ import sys
 # getExons_cmd = "python 2_getExons.py %s %s %s %s %s %s" % (renormPath, renormList, exonSummary, wgSummary, debug, bed)
 
 if (sys.argv < 7):
-    print "step 2 error not enough arguments"
+    print("step 2 error not enough arguments")
     sys.exit(1)
 
 renormPath = sys.argv[1]
@@ -87,7 +87,7 @@ def process_file(f_in):
     exons = {}
 
     # Temp list of all genes in gdict
-    all_genes = gdict.keys()
+    all_genes = list(gdict.keys())
     
     # Preprocessing
     contra = []
@@ -116,7 +116,7 @@ def process_file(f_in):
                 exon_n = 1
                 exons[currgene] = {}
             else:
-                exon_n = len(exons[currgene].keys()) + 1
+                exon_n = len(list(exons[currgene].keys())) + 1
                 
         # If its a new exon...
         elif line[START_IND] != temp[1]: # ie coordinates don't match up
@@ -135,12 +135,12 @@ def process_file(f_in):
 
     # Add appropriate data to global dictionary gdict
     # If gdict not yet populated (empty):
-    for gene in exons.keys():
+    for gene in list(exons.keys()):
 	#print "gene %s " % gene 
 	#print "gdict %s " % str(gdict)
 	#print "gdict[gene] %s " % str(gdict[gene])
-        exon_list = gdict[gene].keys()
-        for exon in exons[gene].keys():
+        exon_list = list(gdict[gene].keys())
+        for exon in list(exons[gene].keys()):
             start = int(exons[gene][exon][0])
             end = int(exons[gene][exon][1])
 	    ch= exons[gene][exon][3].replace("chr","")
@@ -197,14 +197,14 @@ count = 0
 for filename in filenames:
     count += 1
     if count % 100 == 0 and debug == 'T':
-        print "...Now processing "+str(count)+"..."
+        print("...Now processing "+str(count)+"...")
     filepath = os.path.join(renormPath, filename+"_renorm.txt")
     if os.path.exists(filepath):
         process_file(filepath)
         good_filenames.append(filename)
     else:
         if debug == 'T':
-            print "Error: Could not find "+filename
+            print("Error: Could not find "+filename)
         bad_filenames.append(filename)           
 
 # write out gdict...
@@ -222,10 +222,10 @@ for gene in sorted(gdict.keys()):
 out.close()
 
 if debug == 'T':
-    print "Finished processing out to "+output_name
+    print("Finished processing out to "+output_name)
 
 
-for gene in gdict.keys():
+for gene in list(gdict.keys()):
     if ';' in gene: # If gene needs to be split
         #print 'splitting',gene
         components = gene.split(';')
@@ -245,7 +245,7 @@ for gene in sorted(gdict.keys()):
     wholegene.write(gene)
     for i in range(0, len(good_filenames)): # For each sample...
         sample_temp = []
-        for exon in gdict[gene].keys(): # For each exon (in that gene):
+        for exon in list(gdict[gene].keys()): # For each exon (in that gene):
             #print len(gdict[gene][exon])
             #print "i = "+str(i)+" len(gdict[gene][exon])"+ str(len(gdict[gene][exon]))
             sample_temp.append(gdict[gene][exon][i]) # collect the log ratio of that exon of that sample (of that gene)
@@ -255,9 +255,9 @@ wholegene.close()
 
 
 if debug == "T":
-    print "Finished writing whole-gene data to " + wgSummary
+    print("Finished writing whole-gene data to " + wgSummary)
     errors.close()
-    print "Finished writing errors to " + error_out
+    print("Finished writing errors to " + error_out)
 
 
 

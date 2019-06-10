@@ -15,7 +15,7 @@ USAGE = "%s <CONTRA_out_list.txt> <output_folder> <bed> [debug output T/F] [hist
 debug = 'F'
 histograms = 'F'
 if len(sys.argv) < 4:
-    print USAGE
+    print(USAGE)
     sys.exit(1)
 if len(sys.argv) > 4:
     debug = sys.argv[4]
@@ -29,7 +29,7 @@ scriptPath = os.path.realpath(os.path.dirname(sys.argv[0]))
 # technically vulnerable since only checking at one point...
 contraList = sys.argv[1]
 if not os.path.exists(contraList):
-    print "Error: couldn't find contra list"
+    print("Error: couldn't find contra list")
     sys.exit(1)
 
 # Create output folders if needed
@@ -54,8 +54,8 @@ if debug == 'T' and not os.path.exists(debugPath):
 renormList = os.path.join(outPath, "renorm_list.txt")
 renorm_cmd = "python %s/1_renormAll.py %s %s %s %s" % (scriptPath, contraList, renormPath, renormList, debug)
 if debug == 'T':
-    print "Step 1: 1_renormAll.py"
-    print renorm_cmd
+    print("Step 1: 1_renormAll.py")
+    print(renorm_cmd)
 os.system(renorm_cmd)
 
 # Step 2 - 2_getExons.py
@@ -64,8 +64,8 @@ exonSummary = os.path.join(outPath, "summary_ex.txt")
 wgSummary = os.path.join(outPath, "summary_wg.txt")
 getExons_cmd = "python %s/2_getExons.py %s %s %s %s %s %s" % (scriptPath, renormPath, renormList, exonSummary, wgSummary, debug, bed)
 if debug == 'T':
-    print "Step 2: 2_getExons.py"
-    print getExons_cmd
+    print("Step 2: 2_getExons.py")
+    print(getExons_cmd)
 
 os.system(getExons_cmd)
 
@@ -82,9 +82,9 @@ if histograms == 'T':
     density_ex_cmd = density_ex_cmd + " " + histPath + "/exon.pdf"
 
 if debug == 'T':
-    print "Step 3: 3_density.R"
-    print density_wg_cmd
-    print density_ex_cmd
+    print("Step 3: 3_density.R")
+    print(density_wg_cmd)
+    print(density_ex_cmd)
 
 os.system(density_wg_cmd)
 os.system(density_ex_cmd)

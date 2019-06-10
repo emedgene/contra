@@ -124,11 +124,11 @@ def averageCount(tFile, nFile, averageOut, tReadCount, nReadCount, rd_threshold,
 		# check if t-gene and n-gene refer to the same gene
 		check_init = nList[nCount].split()
 		if check_init[5] != initial or check_init[6] != _exon:
-			print "Initial: ", initial
-			print "Check_Init.id: ", check_init[5]
-			print "_Exon: ", _exon
-			print "Check_Init.exon: ", check_init[6]
-			print "Error. Comparing different Gene"
+			print("Initial: ", initial)
+			print("Check_Init.id: ", check_init[5])
+			print("_Exon: ", _exon)
+			print("Check_Init.exon: ", check_init[6])
+			print("Error. Comparing different Gene")
 			sys.exit(1)
 		
 		# create data dictionary for tumour and normal data (per each regions/ exon)
@@ -136,9 +136,9 @@ def averageCount(tFile, nFile, averageOut, tReadCount, nReadCount, rd_threshold,
 		nCount, nDict, nDictOri = createDataDict(nCount, nList, r2, OFF, initial, _exon)		
 		# check number of bases in the both gene dict
 		if len(nDict) != len(tDict):
-			print "N:", len(nDict)
-			print "T:", len(tDict)
-			print "Error. Different length of dict"
+			print("N:", len(nDict))
+			print("T:", len(tDict))
+			print("Error. Different length of dict")
 			sys.exit(1)
 
 		# compare coverage
