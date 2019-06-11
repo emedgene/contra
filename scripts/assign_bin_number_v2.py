@@ -19,15 +19,13 @@
 #
 # 
 #-----------------------------------------------------------------------#
-# Last Updated : 12 October 2011 16:43PM
+# Last Updated : 11 June 2019 12:00PM
 
 
 def assignBin(binNumber, srcFile, binFile, targetList, minExons):
-#def assignBin(binNumber, srcFile, binFile, minExons):
 	from math import log
 
 	src = file.readlines(open(srcFile))
-	#binOut = open(binFile, "w")
 
 	minExons = int(minExons)
 	count = 0
@@ -44,13 +42,11 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 		else:
 			logcov	= 0
 		logcov_list.append(logcov)
-	#print "Len of logcov_list:", len(logcov_list)
 
 	# Calculate the boundaries of the bins
 	minLog 		= min(logcov_list)
 	maxLog 		= max(logcov_list)
 	boundary	= (maxLog-minLog)/binNumber
-	#print "Min, Max, Boundary, BinNumber: ", minLog, maxLog, boundary, binNumber
 
 
 	# Split exons to different bins
@@ -62,7 +58,6 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 		while (logcov > set_boundary):
 			i += 1
 			set_boundary = minLog + (boundary * i)
-		#boundary_dict[i] = set_boundary
 		bin_list.append(i)
 
 	for i in range(binNumber+2):
@@ -73,14 +68,12 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 	# Merge with the adjacent bins if it is too small
 	for z in range(1, binNumber+1):
 		element = bin_list.count(z)
-		#print "Bin", z, "has", element, "elements"
-		if (element < minExons):
-			while (bin_list.count(z) != 0):
-				if (z != binNumber):
+		if element < minExons:
+			while bin_list.count(z) != 0:
+				if z != binNumber:
 					bin_list[bin_list.index(z)]+=1 
 				else:
 					bin_list[bin_list.index(z)]-=1
-
 
 	# Check the number of exons in the last bin
 	last_bin_number = sorted(set(bin_list))[-1]
@@ -89,10 +82,9 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 	else:
 		second_last_bin = last_bin_number
 	element		= bin_list.count(last_bin_number)
-	if (element < minExons):
-		while (bin_list.count(last_bin_number) != 0):
-			if (last_bin_number != 1):
-				#bin_list[bin_list.index(last_bin_number)] -= 1
+	if element < minExons:
+		while bin_list.count(last_bin_number) != 0:
+			if last_bin_number != 1:
 				bin_list[bin_list.index(last_bin_number)] = second_last_bin
 
 	final_number_of_bin = len(set(bin_list))
@@ -101,7 +93,6 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 	boundary_list = [boundary_dict[x] for x in sorted(set(bin_list))]
 	i = 1
 
-	#boundary_file = binFile + str(final_number_of_bin) + ".boundaries.txt"
 	boundary_file = binFile + str(binNumber) + ".boundaries.txt"
 	boOut	= open(boundary_file, "w")
 	boOut.write("\t".join([str(0), str(minLog)])+"\n")
@@ -119,35 +110,28 @@ def assignBin(binNumber, srcFile, binFile, targetList, minExons):
 		bin_number_dict[z] = curr_z
 		curr_z += 1
 
-
 	# Append the bin number to the original file 
-	#binFile = binFile + str(final_number_of_bin)+".txt"
 	binFile	= binFile + str(binNumber) + ".txt"
 	binOut	= open(binFile, "w")
 	
 	for exons in src:
-		exon 	= exons.split()
-		id	= int(exon[0])
-		gene	= exon[1]
-		exonNumber	= exon[5]
-		
-		target	= targetList[int(id)-1]
+		exon = exons.split()
+		id = int(exon[0])
+
+		target = targetList[int(id)-1]
 		if target.id == id:
-			chr		= target.chr
-			oriStart	= target.start
-			oriEnd		= target.end
+			chrom	= target.chr
+			oriStart = target.start
+			oriEnd = target.end
 
+			f_bin_number = str(bin_number_dict[bin_list[count]])
+			binOut.write("\t".join([exons.strip("\n"), f_bin_number, chrom, oriStart, oriEnd]))
+			binOut.write("\n")
+			count += 1
 		else:
-			print "ERROR..."
-
-		f_bin_number = str(bin_number_dict[bin_list[count]])
-		binOut.write("\t".join([exons.strip("\n"), f_bin_number,chr, oriStart, oriEnd]))
-		binOut.write("\n")
-		count += 1
+			raise ValueError("ERROR in assign_bin_number_v2...")
 
 	binOut.close()
-	print "End of assign.bin.number.py with %s exons in %s bins" %(count, final_number_of_bin)
-
+	print(("End of assign.bin.number.py with %s exons in %s bins" %(count, final_number_of_bin)))
 
 	return final_number_of_bin
-			

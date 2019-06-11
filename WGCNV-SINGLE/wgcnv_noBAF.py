@@ -5,7 +5,7 @@ import os
 USAGE="%s <sampPath> <mouse|human> [outDir] [outPrefix]" % sys.argv[0]
 
 if len(sys.argv) < 3:
-	print USAGE
+	print(USAGE)
 	sys.exit(1)
 
 
@@ -17,7 +17,7 @@ if sys.argv[2]=="human":
 elif sys.argv[2]=="mouse":
 	chrlen_f="mm9_chrlen.txt"
 else:
-	print "Invalid input - %s" % sys.argv[2]
+	print(("Invalid input - %s" % sys.argv[2]))
 
 if len(sys.argv) > 3:
 	outPath=sys.argv[3]
@@ -39,14 +39,14 @@ for root,dirs,files in os.walk(sampPath):
 		for f in files:
 			if f.endswith("bins.txt"):
 				if contraF is not None:
-					print "WARNING: multiple contra output files is detected."
+					print("WARNING: multiple contra output files is detected.")
 					break
 				contraF=os.path.join(root,f)
 		
 		if contraF:
 			break
 
-print contraF
+print(contraF)
 
 variantF = "NA"#os.path.join(sampPath,samp+"_Ensembl_annotated.tsv")
 #if not os.path.isfile(variantF):
@@ -58,7 +58,7 @@ if not os.path.exists(outPath):
 
 outp=os.path.join(outPath,outPrefix)
 cmd="Rscript %s %s %s %s %s" % (rscript,contraF,variantF,chrlen_f,outp)
-print cmd
+print(cmd)
 os.system(cmd)
 
 cmd2="convert %s*byChr*png %s_byChr.pdf" % (outp,outp)

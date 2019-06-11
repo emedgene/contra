@@ -13,7 +13,7 @@ USAGE = "python %s <contra_output_basedir> <output> <thresh_wg.txt> <thresh_ex.t
 
 # If not enough arguments, print how to use the file
 if len(sys.argv) < 5:
-    print USAGE
+    print(USAGE)
     sys.exit(1)
 if len(sys.argv) < 7:
     debug = 'F'
@@ -38,7 +38,7 @@ for root,dirs,files in os.walk(sampPath):
         for f in files:
             if f.endswith("bins.txt"):
                 if contraF is not None:
-                    print "WARNING: multiple contra output files detected."
+                    print("WARNING: multiple contra output files detected.")
                     break
                 contraF=os.path.join(root,f)
         if contraF:
@@ -46,7 +46,7 @@ for root,dirs,files in os.walk(sampPath):
 
 # If there isnt a CONTRA file, exit
 if contraF == None:
-    print "ERROR: Could not find CONTRA output file."
+    print("ERROR: Could not find CONTRA output file.")
     sys.exit(1)
 
 # Create output directory if needed
@@ -63,9 +63,9 @@ if not os.path.exists(outPath):
 renorm_out = os.path.normpath(os.path.join(outPath, sampName + "_renorm.txt"))
 renorm_cmd = "python %s/1_renorm.py %s %s %s" % (scriptPath, contraF, renorm_out, debug)
 if debug == 'T':
-    print "............"
-    print "Step 1: 1_renorm.py"
-    print renorm_cmd
+    print("............")
+    print("Step 1: 1_renorm.py")
+    print(renorm_cmd)
 os.system(renorm_cmd)
 
 # 2. PROCESS.PY
@@ -74,9 +74,9 @@ process_exon_out = os.path.normpath(os.path.join(outPath, sampName + "_exon.txt"
 process_wg_out = os.path.normpath(os.path.join(outPath, sampName + "_wg.txt"))
 process_cmd = "python %s/2_process.py %s %s %s %s %s" % (scriptPath, renorm_out, process_wg_out, process_exon_out, bedAnnotatedTxt, debug)
 if debug == 'T':
-    print "............"
-    print "Step 2: 2_process.py"
-    print process_cmd
+    print("............")
+    print("Step 2: 2_process.py")
+    print(process_cmd)
 os.system(process_cmd)
 
 # 3. WGSUMMARY.R
@@ -85,16 +85,22 @@ summary_out = os.path.normpath(os.path.join(outPath, sampName + "_wgSummary.txt"
 ex_summary_out = os.path.normpath(os.path.join(outPath, sampName + "_exSummary.txt"))
 thresh_wg = sys.argv[3]
 thresh_exon = sys.argv[4]
-summary_cmd = "Rscript %s %s %s %s %s %s %s %s %s" % (os.path.join(scriptPath, "3_wgsummary.R"), \
-                                                    scriptPath, process_wg_out, process_exon_out, summary_out, ex_summary_out,
-							thresh_wg, thresh_exon, debug)
+summary_cmd = "Rscript %s %s %s %s %s %s %s %s %s" % (os.path.join(scriptPath, "3_wgsummary.R"),
+                                                      scriptPath,
+                                                      process_wg_out,
+                                                      process_exon_out,
+                                                      summary_out,
+                                                      ex_summary_out,
+                                                      thresh_wg,
+                                                      thresh_exon,
+                                                      debug)
 if debug == 'T':
-    print "............"
-    print "Step 3: 3_wgsummary.R"
-    print summary_cmd
+    print("............")
+    print("Step 3: 3_wgsummary.R")
+    print(summary_cmd)
 os.system(summary_cmd)
 
-print "Finished: created %s %s" % (summary_out, ex_summary_out)
+print(("Finished: created %s %s" % (summary_out, ex_summary_out)))
 
 
 # 4. PLOT.R
@@ -109,10 +115,10 @@ plotScript = os.path.join(scriptPath,"4_plot.R")
 plot_cmd = "Rscript %s %s %s %s %s %s %s" % (plotScript, ex_summary_out,summary_out,sampName,species,species_f,outf)
 
 
-print "............"
-print "Step 4: 4_plot.R"
-print plot_cmd
+print("............")
+print("Step 4: 4_plot.R")
+print(plot_cmd)
 os.system(plot_cmd)
-print "Finished: created %s" % outf
+print(("Finished: created %s" % outf))
 
 

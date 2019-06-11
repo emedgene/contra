@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # Usage: python 2_process.py [_renorm.txt] [_wg.txt] [_exon.txt] [bed.annotated.txt] [debug]
-import os
 import copy
 import sys
 
@@ -18,15 +17,8 @@ import sys
 # where Exon = startcoord_endcoord (Should be chromosome_startcoord_endcoord but thats not in renorm)
 gdict = {}
 
-# Error file (write out errors here)
-# JKS WHO NEEDS ERRORS
-#error_out = "ALL_get_exons_err.txt"
-#if testing_flag:
-#    error_out = "TEST_get_exons_err.txt"
-#errors = open(error_out, 'w')
-
 if len(sys.argv) < 4:
-    print "2_process.py: not enough input arguments"
+    print("2_process.py: not enough input arguments")
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -34,15 +26,15 @@ wholegene_output = sys.argv[2]
 exon_output = sys.argv[3]
 debug='F'
 if len(sys.argv) == 6:
-	debug=sys.argv[5]
+    debug=sys.argv[5]
 
 
 # Create gdict entries based on myTSCA.bed.annotated.txt
 # Format: chromosome startcoord endcoord gene
 if len(sys.argv) >= 5:
-	myTSCA_in = sys.argv[4]
+    myTSCA_in = sys.argv[4]
 else:
-	myTSCA_in = "/mnt/Storage/NextGenSequencing/Data/Yeap/myTSCA.bed.annotated.txt"
+    myTSCA_in = "/mnt/Storage/NextGenSequencing/Data/Yeap/myTSCA.bed.annotated.txt"
 
 myTSCA = open(myTSCA_in, 'r')
 for line in myTSCA.readlines():
@@ -93,7 +85,7 @@ def process_file(f_in):
     exons = {}
 
     # Temp list of all genes in gdict
-    all_genes = gdict.keys()
+    all_genes = list(gdict.keys())
     
     # Preprocessing
     contra = []
@@ -122,7 +114,7 @@ def process_file(f_in):
                 exon_n = 1
                 exons[currgene] = {}
             else:
-                exon_n = len(exons[currgene].keys()) + 1
+                exon_n = len(list(exons[currgene].keys())) + 1
                 
         # If its a new exon...
         elif line[START_IND] != temp[1]: # ie coordinates don't match up
@@ -141,9 +133,9 @@ def process_file(f_in):
 
     # Add appropriate data to global dictionary gdict
     # If gdict not yet populated (empty):
-    for gene in exons.keys():
-        exon_list = gdict[gene].keys()
-        for exon in exons[gene].keys():
+    for gene in list(exons.keys()):
+        exon_list = list(gdict[gene].keys())
+        for exon in list(exons[gene].keys()):
             start = int(exons[gene][exon][0])
             end = int(exons[gene][exon][1])
             ch = exons[gene][exon][3].replace("chr","")
@@ -160,59 +152,26 @@ def process_file(f_in):
                     possible_end = int(components[1])
                     start_diff = start - possible_start
                     end_diff = possible_end - end
-                    if start_diff < 21 and end_diff < 21 and start_diff >= 0 and end_diff >= 0:
+                    if 0 <= start_diff < 21 and 0 <= end_diff < 21:
                         # Can match these two together
-                        #errors.write('\t'+gene+'_'+possible_match+" is matched with incomplete "+exon_name+'\n')
                         gdict[gene][possible_match].append(exons[gene][exon][2])
                         exon_list.remove(possible_match)
                         matched = True
                     # Couldn't find a match for it: output error
-                    #errors.write(gene+'_'+exon_name+" could not be found\n")
         # Take care of missing data: remaining exons in exonlist
 
         for missing_exon in exon_list:
             gdict[gene][missing_exon].append("NA")
-            #errors.write(gene+'_'+missing_exon+" marked as missing\n")
         all_genes.remove(gene)
 
     for gene in all_genes:
         # These genes had nothing in the input data. So, add NA to each exon of the gene.
         for exon in gdict[gene]:
             gdict[gene][exon].append("NA")
-        #errors.write(gene+" not found in input data\n")
-    
-    # print 'Finished '+f_in[:9]
+
 
 process_file(filename)
 
-
-
-    # Write it out to a file?
-    #if writeout:
-     #   f2 = open(exon_output, 'w')
-      #  headers = ['Gene', 'Start Coord', 'End Coord', 'Mean Log Ratio\n']
-       # f2.write('\t'.join(headers))
-        #for gene in sorted(exons.keys()):
-         #   for exon in sorted(exons[gene].keys()):
-          #      f2.write('\t'.join([gene, str(exons[gene][exon][0]), str(exons[gene][exon][1]), str(exons[gene][exon][2])+'\n']))
-
-        #f2.close()
-
-          
-# write out gdict...
-#output_name = "ALL_exons.txt"
-#out = open(output_name, 'w')
-# Write headers
-#out.write("Exon Name\t"+'\t'.join(good_filenames)+'\n') # dont have bad headers!
-#for gene in sorted(gdict.keys()):
-#    for exon in sorted(gdict[gene].keys()):
-#        out.write(gene+'_'+str(exon))
-#        for ratio in gdict[gene][exon]:
-#            out.write('\t'+str(ratio))
- #       out.write('\n')
-
-#out.close()
-#print "Finished processing out to "+output_name
 
 f2 = open(exon_output, 'w')
 headers = ['Gene','Chr', 'Start Coord', 'End Coord', 'Mean Log Ratio\n']
@@ -222,20 +181,18 @@ for gene in sorted(gdict.keys()):
         log_ratio = str(gdict[gene][exon][0])
         if (log_ratio != "NA"):
             ch,coord=exon.split(":")
-	    out = [gene, ch, coord.split('_')[0], coord.split('_')[1], str(gdict[gene][exon][0])]
+            out = [gene, ch, coord.split('_')[0], coord.split('_')[1], str(gdict[gene][exon][0])]
             f2.write('\t'.join(out))
             f2.write('\n')
 f2.close()
-
 
 
 # Duplicate gdict, just in case...
 
 gdict2 = copy.deepcopy(gdict)
 
-for gene in gdict2.keys():
+for gene in list(gdict2.keys()):
     if ';' in gene: # If gene needs to be split
-        #print 'splitting',gene
         components = gene.split(';')
         for component_gene in components:
             if component_gene not in gdict2:
@@ -250,9 +207,7 @@ wholegene = open(wholegene_output, 'w')
 wholegene.write("Gene\tRatio\n")
 for gene in sorted(gdict2.keys()):
     sample_temp = []
-    for exon in gdict2[gene].keys(): # For each exon (in that gene):
-        #print len(gdict[gene][exon])
-        #print "i = "+str(i)+" len(gdict[gene][exon])"+ str(len(gdict[gene][exon]))
+    for exon in list(gdict2[gene].keys()): # For each exon (in that gene):
         sample_temp.append(gdict2[gene][exon][0]) # collect the log ratio of that exon of that sample (of that gene)
     log_ratio = calculate_average_withmissing(sample_temp)
     if log_ratio != "NA":
@@ -261,9 +216,9 @@ for gene in sorted(gdict2.keys()):
         wholegene.write('\n')
 wholegene.close()
 
-#if sys.argv[4] == 'T':
+
 if debug == 'T':
-    print "2_process.py: created "+wholegene_output
-    print "2_process.py: created "+exon_output
+    print(("2_process.py: created "+wholegene_output))
+    print(("2_process.py: created "+exon_output))
 
 

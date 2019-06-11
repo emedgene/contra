@@ -6,7 +6,7 @@ import os
 import sys
 
 if len(sys.argv) < 5:
-    print "Error: 1_renormAll.py Not enough arguments"
+    print("Error: 1_renormAll.py Not enough arguments")
     sys.exit(0)
 
 contraList = sys.argv[1]
@@ -103,7 +103,7 @@ count = 0
 for filepath in filepaths:
     count += 1
     if count % 100 == 0 and debug == 'T':
-        print "...Now processing "+str(count)+"..."
+        print(("...Now processing "+str(count)+"..."))
     filename = os.path.basename(filepath.rstrip("/\\ ")) # want to get file
     cfilepath = os.path.join(filepath+middle, filename+suffix)
     # print cfilepath
@@ -116,7 +116,7 @@ for filepath in filepaths:
 
 if debug == 'T':
     a_and_b.close()
-    print "Finished processing out to %s" % renormList
-    print "Bad paths:"
-    print " ".join(bad_filepaths)
+    print(("Finished processing out to %s" % renormList))
+    print("Bad paths:")
+    print((" ".join(bad_filepaths)))
 

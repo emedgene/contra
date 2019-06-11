@@ -2,7 +2,6 @@
 
 # print '.................inside renorm'
 import math
-import os
 import sys
 
 def renorm_file(path_CONTRA_out, path_out): # Arguments: two paths to files
@@ -65,7 +64,7 @@ def renorm_file(path_CONTRA_out, path_out): # Arguments: two paths to files
     f_out.close()
 
 if len(sys.argv) < 3:
-    print "1_renorm.py: not enough input arguments"
+    print("1_renorm.py: not enough input arguments")
     sys.exit(1)
 
 contraF = sys.argv[1]
@@ -74,4 +73,4 @@ outF = sys.argv[2]
 renorm_file(contraF, outF)
 
 if sys.argv[3] == 'T':
-    print "1_renorm.py: created "+outF
+    print(("1_renorm.py: created "+outF))

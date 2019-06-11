@@ -24,11 +24,10 @@
 import os
 
 def splitByChromosome(destFolder, inputfile, skip_headers=True):
-	infile
     try:
         os.mkdir(destFolder + "chr/")
     except:
-        print "folder exist"
+        print("folder exist")
 
     outputfile = destFolder + "chr/chr1.txt"
     file = open(inputfile,"r")
@@ -50,8 +49,8 @@ def splitByChromosome(destFolder, inputfile, skip_headers=True):
     output.close()
 
 def splitFolderByChromosome(destFolder):
-	infile = destFolder + "sample.BEDGRAPH"
-	splitByChromosome(destFolder, infile, skip_headers=True)
+    infile = destFolder + "sample.BEDGRAPH"
+    splitByChromosome(destFolder, infile, skip_headers=True)
 
 
 def splitFileByChromosome(infile):
